@@ -1,4 +1,3 @@
-from PIL import Image
 import easyocr
 import re
 
@@ -10,30 +9,35 @@ class ExtractionAgent:
 
         result = reader.readtext(image_path)
 
-        text = " ".join(
-            [r[1] for r in result]
-        )
+        text = " ".join([r[1] for r in result])
+
+        print("OCR TEXT:", text)
 
         customer = {}
 
-        name_match = re.search(
-            r'Name[: ]+([A-Za-z ]+)',
-            text
-        )
-
+        # Extract PAN
         pan_match = re.search(
             r'([A-Z]{5}[0-9]{4}[A-Z])',
             text.upper()
-        )
-
-        customer["name"] = (
-            name_match.group(1)
-            if name_match else None
         )
 
         customer["pan"] = (
             pan_match.group(1)
             if pan_match else None
         )
+
+        # Extract Name
+        name_match = re.search(
+            r'Name[: ]+([A-Za-z ]+?)(?:PAN|DOB|Address|$)',
+            text,
+            re.IGNORECASE
+        )
+
+        customer["name"] = (
+            name_match.group(1).strip()
+            if name_match else None
+        )
+
+        print("CUSTOMER:", customer)
 
         return customer

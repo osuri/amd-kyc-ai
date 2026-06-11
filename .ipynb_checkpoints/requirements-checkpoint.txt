@@ -1,0 +1,9 @@
+easyocr
+fastapi
+uvicorn
+streamlit
+requests
+pandas
+plotly
+pillow
+python-multipart

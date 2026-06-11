@@ -8,8 +8,13 @@ class ScreeningAgent:
 
     def run(self, name):
 
+        if not name:
+            return False
+
+        print("SCREENING:", name)
+
         return any(
-            name.lower() ==
-            s.lower()
-            for s in self.sanctions
+            name.strip().lower() ==
+            sanction.strip().lower()
+            for sanction in self.sanctions
         )

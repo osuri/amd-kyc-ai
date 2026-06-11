@@ -91,7 +91,6 @@ with tab3:
     if result:
 
         score = result["score"]
-
         decision = result["decision"]
 
         col1, col2 = st.columns(2)
@@ -103,21 +102,36 @@ with tab3:
             )
 
         with col2:
-            st.metric(
-                "Decision",
-                decision
-            )
+
+            if decision == "REJECTED":
+                st.error("🔴 REJECTED")
+
+            elif decision == "REVIEW":
+                st.warning("🟡 REVIEW")
+
+            else:
+                st.success("🟢 APPROVED")
+
+        # Gauge color based on score
+        if score >= 70:
+            gauge_color = "red"
+        elif score >= 30:
+            gauge_color = "orange"
+        else:
+            gauge_color = "green"
+
         fig = go.Figure(
             go.Indicator(
                 mode="gauge+number",
                 value=score,
-                title={"text":"Risk Score"},
+                title={"text": "Risk Score"},
                 gauge={
-                    "axis":{"range":[0,100]},
-                    "steps":[
-                        {"range":[0,30]},
-                        {"range":[30,70]},
-                        {"range":[70,100]}
+                    "axis": {"range": [0, 100]},
+                    "bar": {"color": gauge_color},
+                    "steps": [
+                        {"range": [0, 30], "color": "#90EE90"},
+                        {"range": [30, 70], "color": "#FFD580"},
+                        {"range": [70, 100], "color": "#FFB6B6"}
                     ]
                 }
             )

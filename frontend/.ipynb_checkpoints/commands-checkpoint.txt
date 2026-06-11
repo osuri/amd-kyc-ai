@@ -1,1 +1,5 @@
 streamlit run app.py --server.address 0.0.0.0 --server.port 8501 --server.enableCORS false
+
+https://notebooks.amd.com/jupyter-hack-team-3355-260611192907-d645172a/proxy/8501/
+
+pip install -r requirements.txt --ignore-installed blinker
