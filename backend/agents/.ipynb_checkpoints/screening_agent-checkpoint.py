@@ -1,20 +1,32 @@
+import chromadb
+
 class ScreeningAgent:
 
-    sanctions = [
-        "John Smith",
-        "Mohammed Ali",
-        "Global Trading"
-    ]
+    def __init__(self):
+
+        client = chromadb.PersistentClient(
+            path="./rag/chroma_db"
+        )
+
+        self.collection = client.get_collection(
+            "sanctions"
+        )
 
     def run(self, name):
 
         if not name:
             return False
 
-        print("SCREENING:", name)
+        result = self.collection.query(
+            query_texts=[name],
+            n_results=1
+        )
 
-        return any(
-            name.strip().lower() ==
-            sanction.strip().lower()
-            for sanction in self.sanctions
+        match = result["documents"][0][0]
+
+        print("Matched:", match)
+
+        return (
+            match.lower() ==
+            name.lower()
         )

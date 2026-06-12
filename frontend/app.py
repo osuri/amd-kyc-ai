@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
+import time
 
 st.set_page_config(
     page_title="AMD AI Compliance Copilot",
@@ -10,32 +10,70 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: #1f77ff;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+}
+div.stButton > button:first-child:hover {
+    background-color: #005ce6;
+    color: white;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("🤖 AI-Powered KYC & AML Compliance Copilot")
+st.caption("Multi-Agent AI | ChromaDB AML Screening | Explainable Risk Scoring")
 
 if "result" not in st.session_state:
     st.session_state.result = None
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📄 Document",
-    "🤖 Agents",
-    "⚠️ Risk",
-    "🔍 Explainability",
-    "📜 Audit"
-])
-with tab1:
+st.header("📄 Upload KYC Document")
 
-    st.header("Document Processing")
+uploaded_file = st.file_uploader(
+    "Choose KYC Image",
+    type=["jpg", "jpeg", "png"]
+)
 
-    uploaded_file = st.file_uploader(
-        "Upload KYC Document",
-        type=["jpg","jpeg","png"]
+if uploaded_file:
+
+    st.image(
+        uploaded_file,
+        caption="Uploaded KYC Document",
+        use_container_width=True
     )
 
-    if uploaded_file:
+    process_btn = st.button(
+        "🚀 Process Document",
+        use_container_width=True
+    )
 
-        st.image(uploaded_file, width=400)
+    if process_btn:
 
-        if st.button("Process Document"):
+        progress_bar = st.progress(0)
+        status = st.empty()
+
+        status.info("📄 OCR Agent Running...")
+        progress_bar.progress(20)
+        time.sleep(0.5)
+
+        status.info("🔍 Extraction Agent Running...")
+        progress_bar.progress(40)
+        time.sleep(0.5)
+
+        status.info("🚨 AML Screening Agent Running...")
+        progress_bar.progress(60)
+        time.sleep(0.5)
+
+        status.info("📊 Risk Scoring Agent Running...")
+        progress_bar.progress(80)
+        time.sleep(0.5)
+
+        with st.spinner("🤖 AI Agents are processing document..."):
 
             files = {
                 "file": (
@@ -52,186 +90,160 @@ with tab1:
 
             st.session_state.result = response.json()
 
-            st.success("Processing Complete")
-with tab2:
+        progress_bar.progress(100)
+        status.success("✅ Decision Agent Completed")
+        st.success("🎉 KYC Processing Completed Successfully")
 
-    st.header("Multi-Agent Workflow")
+if st.session_state.result:
 
-    agents = pd.DataFrame([
-        ["OCR Agent", "✅ Completed"],
-        ["Extraction Agent", "✅ Completed"],
-        ["AML Agent", "✅ Completed"],
-        ["Risk Agent", "✅ Completed"],
-        ["Decision Agent", "✅ Completed"]
-    ], columns=["Agent", "Status"])
+    result = st.session_state.result
+    customer = result["customer"]
+    score = result["score"]
+    decision = result["decision"]
+    evidence = result["evidence"]
 
-    st.dataframe(
-        agents,
-        use_container_width=True
+    st.divider()
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Customer", customer.get("name", "N/A"))
+
+    with col2:
+        st.metric("Risk Score", score)
+
+    with col3:
+        if decision == "REJECTED":
+            st.error("🔴 REJECTED")
+        else:
+            st.success("🟢 APPROVED")
+
+    st.subheader("🤖 Agent Workflow")
+
+    a1, a2, a3, a4, a5 = st.columns(5)
+    a1.success("OCR")
+    a2.success("Extraction")
+    a3.success("AML")
+    a4.success("Risk")
+    a5.success("Decision")
+
+    st.subheader("⚠️ Risk Intelligence")
+
+    gauge_color = "green"
+    if score >= 70:
+        gauge_color = "red"
+    elif score >= 30:
+        gauge_color = "orange"
+
+    fig = go.Figure(
+        go.Indicator(
+            mode="gauge+number",
+            value=score,
+            title={"text": "Risk Score"},
+            gauge={
+                "axis": {"range": [0, 100]},
+                "bar": {"color": gauge_color},
+                "steps": [
+                    {"range": [0, 30], "color": "#90EE90"},
+                    {"range": [30, 70], "color": "#FFD580"},
+                    {"range": [70, 100], "color": "#FFB6B6"}
+                ]
+            }
+        )
     )
 
-    st.subheader("Execution Timeline")
+    st.plotly_chart(fig, use_container_width=True)
 
-    timeline = [
-        "10:00:01 OCR Started",
-        "10:00:02 OCR Completed",
-        "10:00:03 Extraction Completed",
-        "10:00:04 AML Screening Completed",
-        "10:00:05 Risk Score Generated",
-        "10:00:06 Final Decision Generated"
-    ]
+    st.subheader("🔍 Explainability")
 
-    for item in timeline:
-        st.success(item)
+    if evidence:
+        for item in evidence:
+            st.warning(item)
+    else:
+        st.success("No risk indicators detected")
 
-with tab3:
+    st.subheader("💬 Compliance Copilot")
 
-    result = st.session_state.result
+    option = st.selectbox(
+        "Ask Copilot",
+        [
+            "Why was customer approved?",
+            "Why was customer rejected?",
+            "Show risk factors",
+            "Recommend next action"
+        ]
+    )
 
-    if result:
+    if st.button("Generate Insight"):
 
-        score = result["score"]
-        decision = result["decision"]
+        if option == "Why was customer approved?":
+            st.info(
+    f"""
 
-        col1, col2 = st.columns(2)
+🤖 Compliance Copilot Analysis
 
-        with col1:
-            st.metric(
-                "Risk Score",
-                score
-            )
+Customer: {customer.get("name")}
 
-        with col2:
-
-            if decision == "REJECTED":
-                st.error("🔴 REJECTED")
-
-            elif decision == "REVIEW":
-                st.warning("🟡 REVIEW")
-
-            else:
-                st.success("🟢 APPROVED")
-
-        # Gauge color based on score
-        if score >= 70:
-            gauge_color = "red"
-        elif score >= 30:
-            gauge_color = "orange"
-        else:
-            gauge_color = "green"
-
-        fig = go.Figure(
-            go.Indicator(
-                mode="gauge+number",
-                value=score,
-                title={"text": "Risk Score"},
-                gauge={
-                    "axis": {"range": [0, 100]},
-                    "bar": {"color": gauge_color},
-                    "steps": [
-                        {"range": [0, 30], "color": "#90EE90"},
-                        {"range": [30, 70], "color": "#FFD580"},
-                        {"range": [70, 100], "color": "#FFB6B6"}
-                    ]
-                }
-            )
-        )
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
-
-with tab4:
-
-    result = st.session_state.result
-
-    if result:
-
-        st.header("AI Explainability")
-
-        evidence = result["evidence"]
-
-        if evidence:
-
-            for item in evidence:
-                st.warning(item)
-
-        else:
-            st.success(
-                "No risk indicators detected"
-            )
-        st.header("Compliance Copilot")
-
-        option = st.selectbox(
-            "Ask Copilot",
-            [
-                "Why was customer approved?",
-                "Why was customer rejected?",
-                "Show risk factors",
-                "Recommend next action"
-            ]
-        )
-
-        if st.button("Generate Insight"):
-
-            score = result["score"]
-
-            decision = result["decision"]
-
-            if option == "Why was customer approved?":
-
-                st.info(
-                    f"""
 Decision: {decision}
 
-Customer passed AML checks.
-
-No sanctions detected.
+The customer successfully passed AML screening.
 
 Risk Score: {score}
+
+Evidence:
+No sanctions match detected.
+
+Risk Classification:
+LOW RISK CUSTOMER
+
+Recommendation:
+Proceed with customer onboarding.
 """
-                )
+)
 
-            elif option == "Show risk factors":
+        elif option == "Why was customer rejected?":
+            st.info(
+    f"""
 
-                st.info(
-                    f"""
-Risk Factors:
+🤖 Compliance Copilot Analysis
 
-{evidence}
+Customer: {customer.get("name")}
+
+Decision: {decision}
+
+The AML Screening Agent detected a potential sanctions-list match.
+
+Risk Score: {score}
+
+Evidence:
+• {' | '.join(evidence)}
+
+Risk Classification:
+HIGH RISK CUSTOMER
+
+Recommendation:
+Manual compliance review required before onboarding.
 """
-                )
+)
 
-            elif option == "Recommend next action":
+        elif option == "Show risk factors":
+            st.info(str(evidence))
 
-                if score >= 70:
+        elif option == "Recommend next action":
 
-                    st.error(
-                        "Escalate for manual review."
-                    )
+            if score >= 70:
+                st.error("Escalate for manual review.")
+            else:
+                st.success("Proceed with onboarding.")
 
-                else:
-
-                    st.success(
-                        "Proceed with onboarding."
-                    )
-with tab5:
-
-    st.header("Audit Trail")
+    st.subheader("📜 Audit Trail")
 
     audit = pd.DataFrame([
-        ["OCR Agent","SUCCESS"],
-        ["Extraction Agent","SUCCESS"],
-        ["AML Agent","SUCCESS"],
-        ["Risk Agent","SUCCESS"],
-        ["Decision Agent","SUCCESS"]
-    ], columns=[
-        "Component",
-        "Status"
-    ])
+        ["OCR Agent", "SUCCESS"],
+        ["Extraction Agent", "SUCCESS"],
+        ["AML Agent", "SUCCESS"],
+        ["Risk Agent", "SUCCESS"],
+        ["Decision Agent", "SUCCESS"]
+    ], columns=["Component", "Status"])
 
-    st.dataframe(
-        audit,
-        use_container_width=True
-    )
+    st.dataframe(audit, use_container_width=True)

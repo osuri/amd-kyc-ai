@@ -1,5 +1,13 @@
+--run below command in terminal before up backend 
+pip install -r requirements.txt --ignore-installed blinker
+
+--run below commnad in terminal to up backend (under /backend path)
+uvicorn app:app --host 0.0.0.0 --port 8000
+
+--run below commnad in terminal to up frontend (under /fronend path)
 streamlit run app.py --server.address 0.0.0.0 --server.port 8501 --server.enableCORS false
 
-https://notebooks.amd.com/jupyter-hack-team-3355-260611192907-d645172a/proxy/8501/
-
-pip install -r requirements.txt --ignore-installed blinker
+--open below url in browser 
+https://notebooks.amd.com/<pod-id>/proxy/8501/ 
+(here pod id you can see in your notebooks cmd, for example it looks like -> jupyter-hack-team-3355-260611192907-d645172a)
+ 
