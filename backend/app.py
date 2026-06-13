@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi import UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 from agents.extraction_agent import ExtractionAgent
 from agents.screening_agent import ScreeningAgent
@@ -7,6 +8,15 @@ from agents.scoring_agent import ScoringAgent
 from agents.decision_agent import DecisionAgent
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 extractor = ExtractionAgent()
 
