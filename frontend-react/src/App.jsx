@@ -116,7 +116,7 @@ function App() {
               <ComplianceCopilot result={result} />
             </Box>
 
-            <AuditTrail />
+            <AuditTrail logs={result.audit_logs} />
           </Stack>
         ) : (
           <Box className="empty-state">

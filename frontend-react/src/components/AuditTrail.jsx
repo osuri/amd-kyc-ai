@@ -1,14 +1,35 @@
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import { CheckCircle2, ClipboardList } from "lucide-react";
 
-export default function AuditTrail() {
-  const logs = [
-    "OCR Agent Completed",
-    "Extraction Agent Completed",
-    "AML Screening Completed",
-    "Risk Score Generated",
-    "Decision Generated"
-  ];
+const fallbackLogs = [
+  {
+    step: "OCR Agent",
+    status: "Completed",
+    detail: "OCR Agent completed successfully"
+  },
+  {
+    step: "Extraction Agent",
+    status: "Completed",
+    detail: "Extraction Agent completed successfully"
+  },
+  {
+    step: "AML Screening",
+    status: "Completed",
+    detail: "AML Screening completed successfully"
+  },
+  {
+    step: "Risk Scoring",
+    status: "Completed",
+    detail: "Risk Score Generated"
+  },
+  {
+    step: "Decision Engine",
+    status: "Completed",
+    detail: "Decision Generated"
+  }
+];
+
+export default function AuditTrail({ logs = fallbackLogs }) {
 
   return (
     <Card className="panel-card">
@@ -25,10 +46,15 @@ export default function AuditTrail() {
           </Box>
 
           <Box className="audit-list">
-            {logs.map((log) => (
-              <Box className="audit-item" key={log}>
+            {logs.map((log, index) => (
+              <Box className="audit-item" key={`${log.step}-${index}`}>
                 <CheckCircle2 size={18} />
-                <Typography>{log}</Typography>
+                <Box>
+                  <Typography fontWeight={700}>{log.step}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {log.detail || log.status}
+                  </Typography>
+                </Box>
               </Box>
             ))}
           </Box>

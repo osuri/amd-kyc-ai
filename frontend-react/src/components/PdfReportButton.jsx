@@ -57,12 +57,27 @@ function buildReportHtml(result) {
     "Risk Scoring",
     "Decision Engine"
   ];
-  const auditLogs = [
-    "OCR Agent Completed",
-    "Extraction Agent Completed",
-    "AML Screening Completed",
-    "Risk Score Generated",
-    "Decision Generated"
+  const auditLogs = result.audit_logs || [
+    {
+      step: "OCR Agent",
+      detail: "OCR Agent completed successfully"
+    },
+    {
+      step: "Extraction Agent",
+      detail: "Extraction Agent completed successfully"
+    },
+    {
+      step: "AML Screening",
+      detail: "AML Screening completed successfully"
+    },
+    {
+      step: "Risk Scoring",
+      detail: "Risk Score Generated"
+    },
+    {
+      step: "Decision Engine",
+      detail: "Decision Generated"
+    }
   ];
 
   return `<!doctype html>
@@ -414,7 +429,10 @@ function buildReportHtml(result) {
           .map(
             (log) => `<div class="audit-item">
               <span class="check">✓</span>
-              <span>${escapeHtml(log)}</span>
+              <span>
+                <strong>${escapeHtml(log.step)}</strong><br />
+                ${escapeHtml(log.detail || log.status)}
+              </span>
             </div>`
           )
           .join("")}

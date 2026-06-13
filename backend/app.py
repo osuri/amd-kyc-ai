@@ -2,10 +2,7 @@ from fastapi import FastAPI
 from fastapi import UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from agents.extraction_agent import ExtractionAgent
-from agents.screening_agent import ScreeningAgent
-from agents.scoring_agent import ScoringAgent
-from agents.decision_agent import DecisionAgent
+from orchestrator import KycCrewOrchestrator
 
 app = FastAPI()
 app.add_middleware(
@@ -18,13 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-extractor = ExtractionAgent()
-
-screening = ScreeningAgent()
-
-scoring = ScoringAgent()
-
-decision = DecisionAgent()
+orchestrator = KycCrewOrchestrator()
 
 @app.post("/process")
 async def process(
@@ -42,26 +33,6 @@ async def process(
 
         f.write(content)
 
-    customer = extractor.run(
+    return orchestrator.process_document(
         file_path
     )
-
-    aml_match = screening.run(
-        customer["name"]
-    )
-
-    score, evidence = scoring.run(
-        customer,
-        aml_match
-    )
-
-    result = decision.run(
-        score
-    )
-
-    return {
-        "customer": customer,
-        "score": score,
-        "decision": result,
-        "evidence": evidence
-    }
