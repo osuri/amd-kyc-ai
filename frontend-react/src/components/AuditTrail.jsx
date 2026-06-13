@@ -1,13 +1,7 @@
-import {
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText
-} from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
+import { CheckCircle2, ClipboardList } from "lucide-react";
 
 export default function AuditTrail() {
-
   const logs = [
     "OCR Agent Completed",
     "Extraction Agent Completed",
@@ -17,33 +11,29 @@ export default function AuditTrail() {
   ];
 
   return (
+    <Card className="panel-card">
+      <CardContent>
+        <Stack spacing={2}>
+          <Box className="panel-heading">
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Traceability
+              </Typography>
+              <Typography variant="h5">Audit trail</Typography>
+            </Box>
+            <ClipboardList size={22} />
+          </Box>
 
-    <Paper sx={{ p: 3 }}>
-
-      <Typography
-        variant="h5"
-        gutterBottom
-      >
-        📜 Audit Trail
-      </Typography>
-
-      <List>
-
-        {logs.map((log, index) => (
-
-          <ListItem key={index}>
-
-            <ListItemText
-              primary={log}
-            />
-
-          </ListItem>
-
-        ))}
-
-      </List>
-
-    </Paper>
-
+          <Box className="audit-list">
+            {logs.map((log) => (
+              <Box className="audit-item" key={log}>
+                <CheckCircle2 size={18} />
+                <Typography>{log}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 }

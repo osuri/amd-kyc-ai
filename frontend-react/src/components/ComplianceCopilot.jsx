@@ -1,43 +1,53 @@
-import {
-  Paper,
-  Typography
-} from "@mui/material";
+import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material";
+import { BotMessageSquare } from "lucide-react";
 
-export default function ComplianceCopilot({
-  result
-}) {
+function Field({ label, value }) {
+  return (
+    <Box>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography fontWeight={700}>{value || "Not available"}</Typography>
+    </Box>
+  );
+}
+
+export default function ComplianceCopilot({ result }) {
+  const evidence = result.evidence || [];
+  const evidenceSummary = evidence.length
+    ? evidence.join(", ")
+    : "No supporting risk indicators were returned.";
 
   return (
+    <Card className="panel-card">
+      <CardContent>
+        <Stack spacing={2}>
+          <Box className="panel-heading">
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Review brief
+              </Typography>
+              <Typography variant="h5">Compliance copilot</Typography>
+            </Box>
+            <BotMessageSquare size={22} />
+          </Box>
 
-    <Paper sx={{ p: 3 }}>
+          <Box className="brief-grid">
+            <Field label="Customer" value={result.customer?.name} />
+            <Field label="Decision" value={result.decision} />
+            <Field label="Risk score" value={result.score} />
+          </Box>
 
-      <Typography variant="h5">
-        🤖 Compliance Copilot
-      </Typography>
+          <Divider />
 
-      <Typography mt={2}>
-
-        Customer:
-        {result.customer.name}
-
-        <br/>
-
-        Decision:
-        {result.decision}
-
-        <br/>
-
-        Risk Score:
-        {result.score}
-
-        <br/>
-
-        Evidence:
-        {result.evidence.join(", ")}
-
-      </Typography>
-
-    </Paper>
-
+          <Box>
+            <Typography variant="caption" color="text.secondary">
+              Evidence summary
+            </Typography>
+            <Typography>{evidenceSummary}</Typography>
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 }

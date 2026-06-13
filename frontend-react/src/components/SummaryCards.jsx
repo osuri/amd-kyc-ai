@@ -1,62 +1,77 @@
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography
-} from "@mui/material";
+import { Box, Card, CardContent, Chip, Stack, Typography } from "@mui/material";
+import { BadgeCheck, Gauge, UserRound } from "lucide-react";
 
-export default function SummaryCards({
-  result
-}) {
+const decisionColor = {
+  APPROVE: "success",
+  REVIEW: "warning",
+  REJECT: "error"
+};
+
+function normalizeDecision(decision = "") {
+  return decision.toString().toUpperCase();
+}
+
+export default function SummaryCards({ result }) {
+  const decision = normalizeDecision(result.decision);
+  const items = [
+    {
+      label: "Customer",
+      value: result.customer?.name || "Unknown customer",
+      icon: UserRound
+    },
+    {
+      label: "Risk score",
+      value: result.score,
+      icon: Gauge,
+      helper: "0 low risk, 100 high risk"
+    },
+    {
+      label: "Decision",
+      value: result.decision || "Pending",
+      icon: BadgeCheck,
+      chip: true
+    }
+  ];
 
   return (
+    <Box className="summary-grid">
+      {items.map((item) => {
+        const Icon = item.icon;
 
-    <Grid container spacing={2} mb={2}>
+        return (
+          <Card className="metric-card" key={item.label}>
+            <CardContent>
+              <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.label}
+                  </Typography>
 
-      <Grid item xs={4}>
-        <Card>
-          <CardContent>
-            <Typography>
-              Customer
-            </Typography>
+                  {item.chip ? (
+                    <Chip
+                      label={item.value}
+                      color={decisionColor[decision] || "default"}
+                      className="decision-chip"
+                    />
+                  ) : (
+                    <Typography variant="h5">{item.value}</Typography>
+                  )}
 
-            <Typography variant="h5">
-              {result.customer.name}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+                  {item.helper && (
+                    <Typography variant="caption" color="text.secondary">
+                      {item.helper}
+                    </Typography>
+                  )}
+                </Box>
 
-      <Grid item xs={4}>
-        <Card>
-          <CardContent>
-            <Typography>
-              Risk Score
-            </Typography>
-
-            <Typography variant="h5">
-              {result.score}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid item xs={4}>
-        <Card>
-          <CardContent>
-
-            <Typography>
-              Decision
-            </Typography>
-
-            <Typography variant="h5">
-              {result.decision}
-            </Typography>
-
-          </CardContent>
-        </Card>
-      </Grid>
-
-    </Grid>
+                <Box className="metric-icon">
+                  <Icon size={20} />
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </Box>
   );
 }

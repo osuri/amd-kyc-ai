@@ -1,61 +1,98 @@
 import { useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography
+} from "@mui/material";
+import { FileUp, PlayCircle, X } from "lucide-react";
 import api from "../api";
 
-import {
-  Button,
-  Paper,
-  CircularProgress
-} from "@mui/material";
-
-export default function UploadPanel({
-  setResult
-}) {
-
+export default function UploadPanel({ setResult }) {
   const [file, setFile] = useState();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const upload = async () => {
+    if (!file) {
+      setError("Choose a document before processing.");
+      return;
+    }
 
     setLoading(true);
+    setError("");
 
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    formData.append(
-      "file",
-      file
-    );
-
-    const response = await api.post(
-      "/process",
-      formData
-    );
-
-    setResult(response.data);
-
-    setLoading(false);
+      const response = await api.post("/process", formData);
+      console.log("response", response)
+      setResult(response.data);
+    } catch (uploadError) {
+      setError(
+        uploadError?.response?.data?.detail ||
+          "Could not process the document. Check the backend and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Paper sx={{ p: 3, mb: 3 }}>
+    <Box className="upload-panel">
+      <Stack spacing={2}>
+        <Box>
+          <Typography variant="overline">Document intake</Typography>
+          <Typography variant="h5">Upload KYC document</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Supported formats: JPG, JPEG, PNG
+          </Typography>
+        </Box>
 
-      <input
-        type="file"
-        accept=".jpg,.jpeg,.png"
-        onChange={(e) =>
-          setFile(e.target.files[0])
-        }
-      />
+        <Box className="drop-zone">
+          <input
+            id="document-upload"
+            type="file"
+            accept=".jpg,.jpeg,.png"
+            onChange={(event) => {
+              setFile(event.target.files[0]);
+              setError("");
+            }}
+          />
 
-      <Button
-        variant="contained"
-        onClick={upload}
-        sx={{ ml: 2 }}
-      >
-        {loading
-          ? <CircularProgress size={20}/>
-          : "Process Document"}
-      </Button>
+          <label htmlFor="document-upload">
+            <FileUp size={28} />
+            <span>{file?.name || "Select a document"}</span>
+          </label>
 
-    </Paper>
+          {file && (
+            <Button
+              type="button"
+              size="small"
+              variant="text"
+              startIcon={<X size={16} />}
+              onClick={() => setFile(undefined)}
+            >
+              Clear
+            </Button>
+          )}
+        </Box>
+
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <Button
+          size="large"
+          variant="contained"
+          startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <PlayCircle size={18} />}
+          onClick={upload}
+          disabled={loading}
+        >
+          {loading ? "Processing" : "Process document"}
+        </Button>
+      </Stack>
+    </Box>
   );
 }
